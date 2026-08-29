@@ -93,5 +93,67 @@ test.describe('user registeration', async () => {
         await expect(page).toHaveURL('/');
     });
 
-    test("user can't register with existing email", async ({ page }) => {});
+    test("user can't register with existing email", async ({ page }) => {
+        const emailAddress: string = `${Date.now()}-${Math.random()}@example.com`;
+
+        // register
+        await registerPage.register('Abdelrahman Maher', emailAddress, '123123#', '123123#');
+
+        // register again with same email
+        await registerPage.register('Abdelrahman Maher', emailAddress, '123123#', '123123#');
+
+        // verify invalid register
+        await expect(page.getByText('Email already registered')).toBeVisible();
+
+        await expect(page).toHaveURL(registerPage.url);
+    });
+
+    test("user can't register with non-matching passwords", async ({ page }) => {
+        // register with non-mathcing passwords
+        await registerPage.register(
+            'Abdelrahman Maher',
+            `${Date.now()}-${Math.random()}@example.com`,
+            '123123#',
+            '123123333#',
+        );
+
+        // verify invalid register
+        await expect(page.getByText('Passwords do not match')).toBeVisible();
+
+        await expect(page).toHaveURL(registerPage.url);
+    });
+
+    test("user can't register with too short password", async ({ page }) => {
+        // register with short password
+        await registerPage.register(
+            'Abdelrahman Maher',
+            `${Date.now()}-${Math.random()}@example.com`,
+            '123#',
+            '123',
+        );
+
+        // verify invalid register
+        await expect(page).toHaveURL(registerPage.url);
+    });
+
+    test("user can't register with empty fullname", async ({ page }) => {
+        // register with empty fullname
+        await registerPage.register(
+            '',
+            `${Date.now()}-${Math.random()}@example.com`,
+            '123123#',
+            '123123333#',
+        );
+
+        // verify invalid register
+        await expect(page).toHaveURL(registerPage.url);
+    });
+
+    test("user can't register with empty email", async ({ page }) => {
+        // register with empty email
+        await registerPage.register('Abdelrahman Maher', '', '123123#', '123123333#');
+
+        // verify invalid register
+        await expect(page).toHaveURL(registerPage.url);
+    });
 });
