@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 import { LoginPage } from '../pages/LoginPage';
+import { RegisterPage } from '../pages/RegisterPage';
 
 // Login tests
 test.describe('user login', () => {
@@ -65,28 +66,24 @@ test.describe('user login', () => {
 
 // Registration tests
 test.describe('user registeration', async () => {
-    // navigate to register page before each test
+    let registerPage: RegisterPage;
+
+    // create new register page object before each test
     test.beforeEach(async ({ page }) => {
         console.log('Running ', test.info().title);
 
-        await page.goto('/register.html');
+        registerPage = new RegisterPage(page);
+        await registerPage.goto();
     });
 
     test('user can register', async ({ page }) => {
-        // fill fullname
-        await page.getByLabel('Full Name').fill('Abdelrahman Maher');
-
-        // fill email address
-        await page.getByLabel('Email Address').fill(`${Date.now()}-${Math.random()}@example.com`);
-
-        // fill password
-        await page.getByLabel('Password', { exact: true }).fill('123123#');
-
-        // fill confirm password
-        await page.getByLabel('Confirm Password').fill('123123#');
-
-        // click create account
-        await page.getByRole('button', { name: 'Create Account' }).click();
+        // register with valid credentials
+        await registerPage.register(
+            'Abdelrahman Maher',
+            `${Date.now()}-${Math.random()}@example.com`,
+            '123123#',
+            '123123#',
+        );
 
         // verify successfully registered
         await expect(page.getByText('Account Created')).toBeVisible();
