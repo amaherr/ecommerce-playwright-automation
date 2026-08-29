@@ -4,7 +4,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 
 // Login tests
-test.describe('user login', () => {
+test.describe('user login/logout', () => {
     let loginPage: LoginPage;
 
     // create login page object before each test
@@ -61,6 +61,21 @@ test.describe('user login', () => {
 
         // verify invalid login
         await expect(page).toHaveURL(loginPage.url);
+    });
+
+    test('user can logout', async ({ page }) => {
+        // login with valid credentials
+        await loginPage.login('demo@techmart.com', 'demo123');
+
+        // click on logout button
+        await page.getByRole('button', { name: 'Logout' }).click();
+
+        // verify logout successfull
+        await expect(page.getByRole('button', { name: 'Logout' })).toBeHidden();
+
+        await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
+
+        await expect(page).toHaveURL('/');
     });
 });
 
