@@ -1,92 +1,65 @@
 import { test, expect } from '@playwright/test';
 
+import { LoginPage } from '../pages/LoginPage';
+
 // Login tests
 test.describe('user login', () => {
-    // navigate to login page before each test
+    let loginPage: LoginPage;
+
+    // create login page object before each test
     test.beforeEach(async ({ page }) => {
         console.log('Running ', test.info().title);
 
-        await page.goto('/login.html');
+        loginPage = new LoginPage(page);
+        await loginPage.goto();
     });
 
     test('user can login', async ({ page }) => {
-        // fill email address
-        await page.getByLabel('Email Address').fill('demo@techmart.com');
-
-        // fill password
-        await page.getByLabel('Password').fill('demo123');
-
-        // press login
-        await page.getByRole('button', { name: 'Login' }).click();
+        // login with correct credentials
+        await loginPage.login('demo@techmart.com', 'demo123');
 
         // verify logged in
         await expect(page.getByText('Login successful')).toBeVisible();
+
+        await expect(page).toHaveURL('/');
 
         await expect(page.getByText('Hi, ')).toBeVisible();
     });
 
     test("user can't login with wrong password", async ({ page }) => {
-        // fill correct email
-        await page.getByLabel('Email Address').fill('demo@techmart.com');
-
-        // fill wrong password
-        await page.getByLabel('Password').fill('demo1234');
-
-        // press login button
-        await page.getByRole('button', { name: 'Login' }).click();
+        // login with correct email and wrong password
+        await loginPage.login('demo@techmart.com', 'wrong-password');
 
         // check for invalid login
         await expect(page.getByText('Invalid')).toBeVisible();
 
-        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        await expect(page).toHaveURL(loginPage.url);
     });
 
     test("user can't login with unknown email", async ({ page }) => {
-        // fill unknown email
-        await page.getByLabel('Email Address').fill('demo0@techmart.com');
-
-        // fill password
-        await page.getByLabel('Password').fill('demo123');
-
-        // press login button
-        await page.getByRole('button', { name: 'Login' }).click();
+        // login with unknown email
+        await loginPage.login('unknown@techmart.com', 'password');
 
         // check for invalid login
         await expect(page.getByText('Invalid')).toBeVisible();
 
-        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        await expect(page).toHaveURL(loginPage.url);
     });
 
     test("user can't login with empty credentials", async ({ page }) => {
-        // fill empty email
-        await page.getByLabel('Email Address').fill('');
+        // login with empty email and empty password
+        await loginPage.login('', '');
 
-        // fill empty password
-        await page.getByLabel('Password').fill('');
-
-        // click login button
-        await page.getByRole('button', { name: 'Login' }).click();
-
-        // verify error message
-        await expect(page).toHaveURL('/login.html');
-
-        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+        // verify invalid login
+        await expect(page).toHaveURL(loginPage.url);
     });
 
     test("user can't login with invalid email address format", async ({ page }) => {
-        // fill invalid email
-        await page.getByLabel('Email Address').fill('demo');
+        // login with invalid email format
+        await loginPage.login('demo', 'password');
 
-        // fill password
-        await page.getByLabel('Password').fill('demo123');
-
-        // click login
-        await page.getByRole('button', { name: 'login' }).click();
-
-        // verify still in login page
-        await expect(page).toHaveURL('/login.html');
-
-        await expect(page.getByRole('button', { name: 'login' })).toBeVisible();
+        // verify invalid login
+        await expect(page).toHaveURL(loginPage.url);
     });
 });
 
