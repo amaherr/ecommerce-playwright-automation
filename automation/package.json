@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:auth": "playwright test tests/auth.spec.ts",
+    "test:products": "playwright test tests/products.spec.ts"
   },
   "keywords": [],
   "author": "",
