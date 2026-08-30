@@ -6,7 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:auth": "playwright test tests/auth.spec.ts",
-    "test:products": "playwright test tests/products.spec.ts"
+    "test:products": "playwright test tests/products.spec.ts",
+    "test:cart": "playwright test tests/cart.spec.ts"
   },
   "keywords": [],
   "author": "",

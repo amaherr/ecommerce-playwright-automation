@@ -8,6 +8,9 @@ export class ProductsPage {
     readonly productNames: Locator;
     readonly productCategories: Locator;
     readonly productPrices: Locator;
+    readonly addToCartButtons: Locator;
+
+    readonly cartTotal: Locator;
 
     readonly searchbarInput: Locator;
     readonly searchbarButton: Locator;
@@ -24,6 +27,9 @@ export class ProductsPage {
         this.productNames = this.products.getByRole('heading');
         this.productCategories = this.products.locator('.product-category');
         this.productPrices = this.products.locator('.product-price');
+        this.addToCartButtons = this.products.getByRole('button', { name: 'Add to Cart' });
+
+        this.cartTotal = this.page.locator('#cartCount');
 
         this.searchbarInput = this.page.getByPlaceholder('Search products');
         this.searchbarButton = this.page.locator('#searchBtn');
