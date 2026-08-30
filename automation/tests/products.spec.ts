@@ -60,12 +60,10 @@ test.describe('searchbar works correctly', async () => {
         // make sure there is at least one result
         await expect.poll(async () => products.count()).toBeGreaterThan(0);
 
-        // make sure that all products include the search string
+        // make sure that all product names include the search string
         const count = await products.count();
         for (let i = 0; i < count; i++) {
-            const product = products.nth(i);
-
-            await expect(product.getByRole('heading')).toContainText(searchString, {
+            await expect(productsPage.productNames.nth(i)).toContainText(searchString, {
                 ignoreCase: true,
             });
         }
@@ -95,16 +93,14 @@ test.describe('searchbar works correctly', async () => {
         // make sure that all products include the search string
         const count = await products.count();
         for (let i = 0; i < count; i++) {
-            const product = products.nth(i);
-
-            await expect(product.getByRole('heading')).toContainText(searchString, {
+            await expect(productsPage.productNames.nth(i)).toContainText(searchString, {
                 ignoreCase: true,
             });
         }
     });
 });
 
-test.describe('filtering and sorting wotks correctly', async () => {
+test.describe('filtering and sorting works correctly', async () => {
     let productsPage: ProductsPage;
 
     // create a new products page object model before each test
@@ -128,9 +124,7 @@ test.describe('filtering and sorting wotks correctly', async () => {
         // make sure all products returned are within the correct category
         const count = await products.count();
         for (let i = 0; i < count; i++) {
-            const product = products.nth(i);
-
-            await expect(product.locator('.product-category')).toHaveText(category, {
+            await expect(productsPage.productCategories.nth(i)).toHaveText(category, {
                 ignoreCase: true,
             });
         }
@@ -149,9 +143,7 @@ test.describe('filtering and sorting wotks correctly', async () => {
         // make sure all products have a correct price
         const count = await products.count();
         for (let i = 0; i < count; i++) {
-            const product = products.nth(i);
-
-            const price = await product.locator('.product-price').textContent();
+            const price = await productsPage.productPrices.nth(i).textContent();
             expect(getPrice(price || '')).toBeLessThanOrEqual(maxPrice);
         }
     });
@@ -172,16 +164,73 @@ test.describe('filtering and sorting wotks correctly', async () => {
         // make sure every product mathces the filters
         const count = await products.count();
         for (let i = 0; i < count; i++) {
-            const product = products.nth(i);
-
             // category verification
-            await expect(product.locator('.product-category')).toHaveText(category, {
+            await expect(productsPage.productCategories.nth(i)).toHaveText(category, {
                 ignoreCase: true,
             });
 
             // price verification
-            const price = await product.locator('.product-price').textContent();
+            const price = await productsPage.productPrices.nth(i).textContent();
             expect(getPrice(price || '')).toBeLessThanOrEqual(maxPrice);
         }
+    });
+
+    test('sorting by name works correctly', async ({ page }) => {
+        // sort products by name
+        await productsPage.sortBy('Name');
+
+        const products = productsPage.products;
+
+        // make sure results appear
+        await expect.poll(async () => products.count()).toBeGreaterThan(0);
+
+        // extract the names of the products
+        const productNames: string[] = await productsPage.productNames.allTextContents();
+
+        // make sure names appear in sorted order
+        const expectedProductNames: string[] = [...productNames];
+        expectedProductNames.sort();
+
+        expect(productNames).toEqual(expectedProductNames);
+    });
+
+    test('sorting by price low to high works correctly', async ({ page }) => {
+        // sort by price low to high
+        await productsPage.sortBy('Price: Low to High');
+
+        const products = productsPage.products;
+
+        // make sure results appear
+        await expect.poll(async () => products.count()).toBeGreaterThan(0);
+
+        // extract prices
+        const priceTexts: string[] = await productsPage.productPrices.allTextContents();
+        const productPrices: number[] = priceTexts.map((price) => getPrice(price));
+
+        // check if prices are sorted correctly
+        const expectedPrices: number[] = [...productPrices];
+        expectedPrices.sort((a, b) => a - b);
+
+        expect(productPrices).toEqual(expectedPrices);
+    });
+
+    test('sorting by price high to low works correctly', async ({ page }) => {
+        // sort by price high to low
+        await productsPage.sortBy('Price: High to Low');
+
+        const products = productsPage.products;
+
+        // make sure results appear
+        await expect.poll(async () => products.count()).toBeGreaterThan(0);
+
+        // extract prices
+        const priceTexts: string[] = await productsPage.productPrices.allTextContents();
+        const productPrices: number[] = priceTexts.map((price) => getPrice(price));
+
+        // check if prices are sorted correctly
+        const expectedPrices: number[] = [...productPrices];
+        expectedPrices.sort((a, b) => b - a);
+
+        expect(productPrices).toEqual(expectedPrices);
     });
 });

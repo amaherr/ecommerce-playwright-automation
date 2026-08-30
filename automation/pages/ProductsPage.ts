@@ -3,11 +3,17 @@ import { type Page, type Locator } from '@playwright/test';
 export class ProductsPage {
     readonly page: Page;
 
+    // product information
     readonly products: Locator;
+    readonly productNames: Locator;
+    readonly productCategories: Locator;
+    readonly productPrices: Locator;
+
     readonly searchbarInput: Locator;
     readonly searchbarButton: Locator;
     readonly categoryFilter: Locator;
     readonly priceFilter: Locator;
+    readonly sortingDropdown: Locator;
 
     readonly url: string;
 
@@ -15,10 +21,15 @@ export class ProductsPage {
         this.page = page;
 
         this.products = this.page.locator('.product-card');
+        this.productNames = this.products.getByRole('heading');
+        this.productCategories = this.products.locator('.product-category');
+        this.productPrices = this.products.locator('.product-price');
+
         this.searchbarInput = this.page.getByPlaceholder('Search products');
         this.searchbarButton = this.page.locator('#searchBtn');
         this.categoryFilter = this.page.getByLabel('Category');
         this.priceFilter = this.page.getByLabel('Max Price');
+        this.sortingDropdown = this.page.getByLabel('Sort by');
 
         this.url = '/';
     }
@@ -38,5 +49,9 @@ export class ProductsPage {
 
     async filterByMaxPrice(maxPrice: number) {
         await this.priceFilter.fill(String(maxPrice));
+    }
+
+    async sortBy(sort: string) {
+        await this.sortingDropdown.selectOption(sort);
     }
 }
