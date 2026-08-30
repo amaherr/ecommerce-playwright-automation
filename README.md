@@ -128,6 +128,13 @@ Important files include:
 - `public/` — frontend/static application files.
 - `package.json` — application dependencies and npm scripts.
 
+The app will run on http://localhost:3000
+
+Demo credentials to use:
+
+- Email: demo@techmart.com
+- Password: demo123
+
 ### `automation/`
 
 Contains the Playwright test automation project.
